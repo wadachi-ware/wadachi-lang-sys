@@ -1,0 +1,9 @@
+[package]
+name = "wadachi_ware_lang_sys"
+version = "0.1.0"
+authors = ["kanra824 <mdyh2a380824@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
