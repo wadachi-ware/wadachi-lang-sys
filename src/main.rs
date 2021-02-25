@@ -28,32 +28,33 @@ struct Lexer {
 
 impl Lexer {
     fn new(program: &String) -> Lexer {
-        Lexer {program: program.chars().collect(), size: program.len(), pos: 0}
+        Lexer {
+            program: program.chars().collect(),
+            size: program.len(),
+            pos: 0,
+        }
     }
 
     fn lexing(&mut self) -> Vec<Token> {
         let mut tokens: Vec<Token> = Vec::new();
-        loop {
-            if let Some (c) = self.cur() {
-                if c == '+' {
-                    tokens.push(Token::Plus);
-                } else if c == '-' {
-                    tokens.push(Token::Minus);
-                } else if c.is_ascii_digit() {
-                    let mut val: i32 = self.cur().unwrap().to_digit(10).unwrap() as i32;
-                    while self.next().is_some() && self.next().unwrap().is_ascii_digit() {
-                        self.incr();
-                        val *= 10;
-                        val += self.cur().unwrap().to_digit(10).unwrap() as i32;
-                    }
-                    tokens.push(Token::Num(val));
-                } else {
-                    panic!("cannot parse input");
+        while self.cur().is_some() {
+            let c = self.cur().unwrap();
+            if c == '+' {
+                tokens.push(Token::Plus);
+            } else if c == '-' {
+                tokens.push(Token::Minus);
+            } else if c.is_ascii_digit() {
+                let mut val: i32 = self.cur().unwrap().to_digit(10).unwrap() as i32;
+                while self.next().is_some() && self.next().unwrap().is_ascii_digit() {
+                    self.incr();
+                    val *= 10;
+                    val += self.cur().unwrap().to_digit(10).unwrap() as i32;
                 }
-                self.incr();
+                tokens.push(Token::Num(val));
             } else {
-                break;
+                panic!("cannot parse input");
             }
+            self.incr();
         }
         tokens
     }
@@ -77,8 +78,6 @@ impl Lexer {
             return Some(self.program[self.pos]);
         }
     }
-
-
 }
 
 fn parse(program: &String) -> Vec<Token> {
@@ -93,7 +92,6 @@ fn output_asm(tokens: Vec<Token>) -> () {
     println!("addi  sp, sp, -16");
     println!("sw    s0, 12(sp)");
     println!("addi  s0, sp, 16");
-
 
     let mut itr = tokens.iter();
     let mut val: i32 = itr
@@ -168,18 +166,33 @@ mod tests {
     #[test]
     fn parse_formula_1() {
         let program = "1+1".to_string();
-        assert_eq!(vec![Token::Num(1), Token::Plus, Token::Num(1)], parse(&program));
+        assert_eq!(
+            vec![Token::Num(1), Token::Plus, Token::Num(1)],
+            parse(&program)
+        );
     }
 
     #[test]
     fn parse_formula_2() {
         let program = "1-1".to_string();
-        assert_eq!(vec![Token::Num(1), Token::Minus, Token::Num(1)], parse(&program));
+        assert_eq!(
+            vec![Token::Num(1), Token::Minus, Token::Num(1)],
+            parse(&program)
+        );
     }
 
     #[test]
     fn parse_formula_3() {
         let program = "1-2+3".to_string();
-        assert_eq!(vec![Token::Num(1), Token::Minus, Token::Num(2), Token::Plus, Token::Num(3)], parse(&program));
+        assert_eq!(
+            vec![
+                Token::Num(1),
+                Token::Minus,
+                Token::Num(2),
+                Token::Plus,
+                Token::Num(3)
+            ],
+            parse(&program)
+        );
     }
 }
