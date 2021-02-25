@@ -20,37 +20,70 @@ impl fmt::Display for Token {
     }
 }
 
-fn parse(program: &String) -> Vec<Token> {
-    let mut val: i32 = 0;
-    let mut isnum = false;
-    let mut tokens: Vec<Token> = vec![];
+struct Lexer {
+    program: Vec<char>,
+    size: usize,
+    pos: usize,
+}
 
-    for c in program.chars() {
-        if c == '+' {
-            if isnum {
-                isnum = false;
-                tokens.push(Token::Num(val));
-                val = 0;
+impl Lexer {
+    fn new(program: &String) -> Lexer {
+        Lexer {program: program.chars().collect(), size: program.len(), pos: 0}
+    }
+
+    fn lexing(&mut self) -> Vec<Token> {
+        let mut tokens: Vec<Token> = Vec::new();
+        loop {
+            if let Some (c) = self.cur() {
+                if c == '+' {
+                    tokens.push(Token::Plus);
+                } else if c == '-' {
+                    tokens.push(Token::Minus);
+                } else if c.is_ascii_digit() {
+                    let mut val: i32 = self.cur().unwrap().to_digit(10).unwrap() as i32;
+                    while self.next().is_some() && self.next().unwrap().is_ascii_digit() {
+                        self.incr();
+                        val *= 10;
+                        val += self.cur().unwrap().to_digit(10).unwrap() as i32;
+                    }
+                    tokens.push(Token::Num(val));
+                } else {
+                    panic!("cannot parse input");
+                }
+                self.incr();
+            } else {
+                break;
             }
-            tokens.push(Token::Plus);
-        } else if c == '-' {
-            if isnum {
-                isnum = false;
-                tokens.push(Token::Num(val));
-                val = 0;
-            }
-            tokens.push(Token::Minus);
-        } else if c.is_ascii_digit() {
-            isnum = true;
-            val *= 10;
-            val += c.to_digit(10).unwrap() as i32;
+        }
+        tokens
+    }
+
+    fn incr(&mut self) {
+        self.pos += 1;
+    }
+
+    fn next(&self) -> Option<char> {
+        if self.size - 1 <= self.pos {
+            return None;
         } else {
-            panic!("cannot parse");
+            return Some(self.program[self.pos + 1]);
         }
     }
-    if isnum {
-        tokens.push(Token::Num(val));
+
+    fn cur(&self) -> Option<char> {
+        if self.size <= self.pos {
+            return None;
+        } else {
+            return Some(self.program[self.pos]);
+        }
     }
+
+
+}
+
+fn parse(program: &String) -> Vec<Token> {
+    let mut lexer = Lexer::new(program);
+    let tokens = lexer.lexing();
     tokens
 }
 
