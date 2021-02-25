@@ -35,7 +35,7 @@ impl Lexer {
         }
     }
 
-    fn lexing(&mut self) -> Vec<Token> {
+    fn tokenize(&mut self) -> Vec<Token> {
         let mut tokens: Vec<Token> = Vec::new();
         while self.cur().is_some() {
             let c = self.cur().unwrap();
@@ -82,7 +82,7 @@ impl Lexer {
 
 fn parse(program: &String) -> Vec<Token> {
     let mut lexer = Lexer::new(program);
-    let tokens = lexer.lexing();
+    let tokens = lexer.tokenize();
     tokens
 }
 
